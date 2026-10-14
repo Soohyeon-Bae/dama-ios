@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko">
+<head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#f8f7f2"><meta name="description" content="스크린샷을 일정과 나의 페이지로. 기기 안에서 안전하게 모으는 담아.">
+ <title>담아 · 작은 기억을 담는 곳</title>
+ <link rel="icon" href="assets/sprout.svg"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="style.css">
+ <script defer src="vendor/tesseract.min.js"></script><script type="module" src="app.js"></script>
+</head>
+<body>
+ <div id="app"><div class="loading">🌱<p>작은 기억들을 꺼내고 있어요.</p></div></div>
+ <div id="toast" role="status" aria-live="polite"></div>
+ <input id="upload" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
+ <input id="restore" type="file" accept="application/json,.json" hidden>
+ <dialog id="image-viewer"><div class="viewer-toolbar"><span id="image-meta"></span><button id="close-viewer" aria-label="원본 닫기">✕</button></div><img id="original" alt="첨부한 원본 스크린샷"></dialog>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Tesseract.js 6.0.1 and tesseract.js-core 6.0.0: Apache-2.0.
+Tesseract tessdata_best kor and tessdata_fast eng models: Apache-2.0.
+https://github.com/naptha/tesseract.js
+https://github.com/naptha/tesseract.js-core
+https://github.com/tesseract-ocr/tessdata_fast
+https://github.com/tesseract-ocr/tessdata_best
