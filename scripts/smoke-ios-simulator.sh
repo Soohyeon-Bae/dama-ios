@@ -19,6 +19,8 @@ xcodebuild \
 
 app_path="$CM_BUILD_DIR/build/SimulatorDerivedData/Build/Products/Debug-iphonesimulator/App.app"
 test -d "$app_path"
+test -s "$app_path/public/index.html"
+test -s "$app_path/public/app.js"
 
 if [[ "$simulator_state" != 'Booted' ]]; then
   xcrun simctl boot "$simulator_udid"
@@ -27,6 +29,15 @@ xcrun simctl bootstatus "$simulator_udid" -b
 xcrun simctl install "$simulator_udid" "$app_path"
 xcrun simctl launch "$simulator_udid" io.dama.memories
 
-sleep 5
 mkdir -p "$CM_BUILD_DIR/build"
+sleep 20
+xcrun simctl io "$simulator_udid" screenshot "$CM_BUILD_DIR/build/simulator-20s.png"
+sleep 20
 xcrun simctl io "$simulator_udid" screenshot "$CM_BUILD_DIR/build/simulator-launch.png"
+if ! swift scripts/check-simulator-screen.swift "$CM_BUILD_DIR/build/simulator-launch.png"; then
+  echo 'The iOS app launched but did not show a readable screen within 40 seconds.' >&2
+  xcrun simctl spawn "$simulator_udid" log show --last 3m --style compact \
+    --predicate 'process == "App" OR process == "WebKit.WebContent"' \
+    > "$CM_BUILD_DIR/build/simulator-runtime.log" 2>&1 || true
+  exit 1
+fi
