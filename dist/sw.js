@@ -1,4 +1,4 @@
-const CACHE='dama-assets-v3';
+const CACHE='dama-assets-v6';
 const ASSETS=['./','./index.html','./style.css','./app.js','./db.js','./extract.mjs','./ocr.js','./manifest.webmanifest','./assets/sprout.svg','./assets/dama-info.png','./assets/dama-exhibition.png','./assets/dama-concert.png','./assets/dama-book.png','./vendor/tesseract.min.js','./vendor/worker.min.js','./vendor/core/tesseract-core.wasm.js','./vendor/core/tesseract-core-simd.wasm.js','./vendor/core/tesseract-core-lstm.wasm.js','./vendor/core/tesseract-core-simd-lstm.wasm.js','./vendor/lang/kor.traineddata.gz','./vendor/lang/eng.traineddata.gz'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('dama-assets-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

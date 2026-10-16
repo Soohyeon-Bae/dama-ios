@@ -1,0 +1,23 @@
+{
+  "name": "dama-ios",
+  "version": "0.1.0",
+  "private": true,
+  "description": "담아 iOS wrapper for the existing local-first web app",
+  "scripts": {
+    "build": "node scripts/build-ios-web.mjs",
+    "check": "node --check dist/app.js && node --check dist/native.js && node --check src/native-bridge.js && node --check scripts/build-ios-web.mjs && node --check scripts/prepare-ios.mjs"
+  },
+  "dependencies": {
+    "@capacitor/camera": "8.2.5",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/local-notifications": "8.3.1",
+    "@capacitor/share": "8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "@capacitor/ios": "8.5.3",
+    "@rollup/plugin-node-resolve": "16.0.3",
+    "rollup": "4.64.7"
+  }
+}

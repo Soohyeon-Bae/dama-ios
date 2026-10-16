@@ -1,3 +1,7 @@
 node_modules/
 .env*
 *.tar.gz
+www/
+.corepack/
+.npm-cache/
+ios/
