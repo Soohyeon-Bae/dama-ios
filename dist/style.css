@@ -19,3 +19,4 @@
 .reminder-box .field{display:block;margin:12px 0}
 .reminder-box .field span{display:block;margin-bottom:6px;color:#728267}
 .reminder-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+@media(max-width:760px){html.native-app .shell{padding-top:calc(22px + max(env(safe-area-inset-top),59px))}}

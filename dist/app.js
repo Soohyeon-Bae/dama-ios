@@ -2,6 +2,7 @@ import {allItems,putItem,removeItem,getMeta,setMeta,putMany} from './db.js';
 import {suggest} from './extract.mjs';
 import {readImage} from './ocr.js';
 import {isNativeApp,choosePhotos,scheduleReminder,cancelReminder,pendingReminderIds,onReminderTap,shareDocument} from './native.js';
+document.documentElement.classList.toggle('native-app',isNativeApp());
 const app=document.getElementById('app'),upload=document.getElementById('upload'),restore=document.getElementById('restore');
 const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>crypto.randomUUID();
