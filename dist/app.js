@@ -83,23 +83,46 @@ async function saveReminderForCurrent(){
  const at=new Date(value);
  if(!i||i.type!=='event'||!value||Number.isNaN(at.getTime())||at<=new Date()){toast('앞으로 올 알림 날짜와 시간을 선택해 주세요.');return;}
  const id=freshNotificationId();
+ let committed=false;
  try{
+  await settleSave(i.id);
   await scheduleReminder({id,title:i.title,at:at.toISOString(),itemId:i.id});
-  if(i.notificationId)await cancelReminder(i.notificationId);
-  i.notificationId=id;i.reminderAt=value;await persist(i);render();toast('휴대폰 알림을 예약했어요.');
- }catch(e){await cancelReminder(id).catch(()=>{});console.error(e);toast(e.message==='notification-permission-denied'?'iPhone 설정에서 담아 알림을 허용해 주세요.':'알림을 예약하지 못했어요. 다시 시도해 주세요.');}
+  const updated={...i,notificationId:id,reminderAt:value};
+  await persist(updated);
+  items=items.map(item=>item.id===i.id?updated:item);
+  committed=true;
+  let oldCancelFailed=false;
+  if(i.notificationId)try{await cancelReminder(i.notificationId);}catch(e){oldCancelFailed=true;console.error(e);}
+  render();toast(oldCancelFailed?'새 알림을 예약했지만 이전 알림을 끄지 못했어요. 중복 알림을 확인해 주세요.':'휴대폰 알림을 예약했어요.');
+ }catch(e){if(!committed)await cancelReminder(id).catch(console.error);console.error(e);toast(e.message==='notification-permission-denied'?'iPhone 설정에서 담아 알림을 허용해 주세요.':'알림을 예약하지 못했어요. 다시 시도해 주세요.');}
 }
 async function removeReminderForCurrent(){
  const i=current();if(!i?.notificationId)return;
- try{await cancelReminder(i.notificationId);i.notificationId=null;i.reminderAt='';await persist(i);render();toast('알림을 껐어요.');}
- catch(e){console.error(e);toast('알림을 끄지 못했어요. 다시 시도해 주세요.');}
+  let restoreFailed=false;
+  try{
+   await settleSave(i.id);
+   await cancelReminder(i.notificationId);
+   const updated={...i,notificationId:null,reminderAt:''};
+   try{await persist(updated);}catch(e){
+    if(new Date(i.reminderAt)>new Date())try{await scheduleReminder({id:i.notificationId,title:i.title,at:new Date(i.reminderAt).toISOString(),itemId:i.id,prompt:false});}catch(restoreError){restoreFailed=true;console.error(restoreError);}
+    throw e;
+   }
+   items=items.map(item=>item.id===i.id?updated:item);
+   render();toast('알림을 껐어요.');
+  }catch(e){console.error(e);toast(restoreFailed?'저장 오류로 알림을 복원하지 못했어요. 알림을 다시 설정해 주세요.':'알림을 끄지 못했어요. 다시 시도해 주세요.');}
 }
 async function syncSavedReminder(i,old){
  if(!isNativeApp()||!old?.notificationId)return;
  try{
-  await cancelReminder(old.notificationId);
-  if(i.type==='event'&&i.reminderAt&&new Date(i.reminderAt)>new Date())await scheduleReminder({id:i.notificationId,title:i.title,at:new Date(i.reminderAt).toISOString(),itemId:i.id,prompt:false});
- }catch(e){console.error(e);toast('일정은 저장했지만 알림을 갱신하지 못했어요. 알림 시간을 다시 설정해 주세요.');}
+   if(i.type==='event'&&i.reminderAt&&new Date(i.reminderAt)>new Date())await scheduleReminder({id:i.notificationId,title:i.title,at:new Date(i.reminderAt).toISOString(),itemId:i.id,prompt:false});
+   else await cancelReminder(old.notificationId);
+  }catch(e){
+   console.error(e);
+   if(i.type==='event'&&i.reminderAt&&new Date(i.reminderAt)>new Date()){
+    try{if(!(await pendingReminderIds()).has(i.notificationId)){i.notificationId=null;i.reminderAt='';await putItem(i);}}catch(checkError){console.error(checkError);}
+    toast('일정은 저장했지만 알림을 갱신하지 못했어요. 알림 상태를 확인해 주세요.');
+   }else toast('일정은 저장했지만 이전 알림을 끄지 못했어요. 앱을 다시 열면 재시도해요.');
+  }
 }
 async function pickScreenshots(){
  if(!isNativeApp()){upload.click();return;}
@@ -210,7 +233,9 @@ async function init(){
   if(!isNativeApp()&&'serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(console.error);
   if(isNativeApp())try{
    await onReminderTap(itemId=>{const item=items.find(i=>i.id===itemId);if(item)open(item);});
-   const pending=await pendingReminderIds();
+    const pending=await pendingReminderIds();
+    const activeIds=new Set(items.filter(item=>item.type==='event'&&item.reminderAt&&item.notificationId).map(item=>item.notificationId));
+    for(const id of pending)if(!activeIds.has(id))await cancelReminder(id).catch(console.error);
    for(const item of items){if(item.type==='event'&&item.notificationId&&item.reminderAt&&new Date(item.reminderAt)>new Date()&&!pending.has(item.notificationId)){
     await scheduleReminder({id:item.notificationId,title:item.title,at:new Date(item.reminderAt).toISOString(),itemId:item.id,prompt:false}).catch(console.error);
    }}

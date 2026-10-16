@@ -28,6 +28,8 @@ npx cap sync ios
 node scripts/prepare-ios.mjs
 ```
 
-`ios/`는 생성물이라 Git에 넣지 않습니다. Mac이 없는 Windows에서는 위 명령으로 iOS 프로젝트까지 준비하고, `codemagic.yaml`의 `ios-unsigned` 작업으로 Mac의 Xcode 컴파일을 확인합니다. 서명하지 않은 결과는 iPhone에 설치할 수 없습니다. 실제 iPhone 설치와 App Store 제출에는 Apple 개발자 계정, 앱 식별자 결정, 서명과 실기기 점검이 필요합니다. 현재 `io.dama.memories`는 빌드용 임시 식별자입니다.
+`ios/`는 생성물이라 Git에 넣지 않습니다. Mac이 없는 Windows에서는 위 명령으로 iOS 프로젝트까지 준비하고, `codemagic.yaml`의 `ios-unsigned` 작업으로 Mac의 Xcode 컴파일을 확인합니다. 서명하지 않은 결과는 iPhone에 설치할 수 없습니다. Mac의 Xcode와 무료 Apple 계정으로 본인 iPhone에 시험 설치할 수 있으며, App Store 제출에는 Apple Developer Program 가입과 앱 서명·실기기 점검이 필요합니다. 현재 `io.dama.memories`는 빌드용 임시 식별자입니다.
+
+결제 전 확인은 `node tests/run.mjs`로 날짜·제목 제안과 알림 오류 처리를 검사하고, Codemagic의 같은 작업에서 서명 없는 기기용 빌드와 iOS 시뮬레이터 설치·실행을 확인합니다. 시뮬레이터 첫 화면은 `simulator-launch.png` 아티팩트에 저장됩니다. 이 검사는 사진 보관함 선택과 알림이 실제 iPhone에서 도착하는지까지 증명하지 않으므로, 배포 전에는 실기기 테스트가 필요합니다.
 
 웹 주소의 IndexedDB 데이터는 설치형 앱에 자동으로 옮겨지지 않습니다. 웹 설정의 **백업 파일 저장**으로 JSON을 만든 뒤 iPhone의 파일 앱에 보관하고, 설치형 앱의 **백업 불러오기**로 가져와야 합니다. 가져온 일정의 알림은 다시 설정해야 합니다. iOS의 사진 원본 읽기, OCR Worker/WASM, 파일 가져오기·공유, 저장 지속성, 알림 전달은 서명된 iPhone 빌드로 검증해야 합니다.

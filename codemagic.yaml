@@ -12,6 +12,7 @@ workflows:
       - name: Prepare iOS app
         script: |
           npm run check
+          npm test
           npm run build
           npx cap add ios
           npx cap sync ios
@@ -26,6 +27,10 @@ workflows:
             -derivedDataPath "$CM_BUILD_DIR/build/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             build
+      - name: Launch in iOS Simulator
+        script: bash scripts/smoke-ios-simulator.sh
     artifacts:
       - build/DerivedData/Build/Products/**/*.app
+      - build/SimulatorDerivedData/Build/Products/**/*.app
+      - build/simulator-launch.png
       - /tmp/xcodebuild_logs/*.log

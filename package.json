@@ -5,7 +5,8 @@
   "description": "담아 iOS wrapper for the existing local-first web app",
   "scripts": {
     "build": "node scripts/build-ios-web.mjs",
-    "check": "node --check dist/app.js && node --check dist/native.js && node --check src/native-bridge.js && node --check scripts/build-ios-web.mjs && node --check scripts/prepare-ios.mjs"
+    "check": "node --check dist/app.js && node --check dist/native.js && node --check src/native-bridge.js && node --check scripts/build-ios-web.mjs && node --check scripts/prepare-ios.mjs",
+    "test": "node tests/run.mjs"
   },
   "dependencies": {
     "@capacitor/camera": "8.2.5",
